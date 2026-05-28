@@ -432,10 +432,24 @@ document.addEventListener('DOMContentLoaded', ()=>{
         const options = Array.from(q.querySelectorAll('.option'));
         options.forEach((opt, i)=>{
             opt.addEventListener('click', ()=>{
-                if(q.dataset.locked === 'true') return;
-                options.forEach(o=>o.classList.remove('selected'));
-                opt.classList.add('selected');
-                q.dataset.selected = String(i);
+          if(q.dataset.locked === 'true') return;
+          options.forEach(o=>o.classList.remove('selected','correct-answer','wrong-answer'));
+          opt.classList.add('selected');
+          q.dataset.selected = String(i);
+
+          const correctIndex = options.findIndex(o=>o.classList.contains('correct'));
+          q.dataset.locked = 'true';
+
+          if(i === correctIndex){
+            opt.classList.add('correct-answer');
+          } else {
+            q.classList.add('wrong');
+            opt.classList.add('wrong-answer');
+            if(correctIndex >= 0) options[correctIndex].classList.add('correct-answer');
+          }
+
+          const answer = q.querySelector('.answer');
+          if(answer) answer.style.display = 'block';
             });
         });
     });
