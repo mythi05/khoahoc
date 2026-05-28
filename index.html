@@ -6,314 +6,430 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trắc nghiệm</title>
 
-<style>
-body{
-font-family:Arial;
-background:#f3f4f6;
-margin:0;
-}
-
-header{
-background:#0f172a;
-color:white;
-padding:16px;
-position:sticky;
-top:0;
-z-index:1000;
-}
-
-.container{
-display:flex;
-}
-
-.sidebar{
-width:250px;
-background:white;
-height:100vh;
-overflow:auto;
-padding:10px;
-border-right:1px solid #ddd;
-position:sticky;
-top:80px;
-}
-
-.sidebar button{
-width:48px;
-height:40px;
-margin:4px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold;
-background:#e2e8f0;
-}
-
-.main{
-flex:1;
-padding:20px;
-}
-
-.question{
-background:white;
-padding:20px;
-border-radius:14px;
-margin-bottom:20px;
-box-shadow:0 2px 10px rgba(0,0,0,.08);
-}
-
-.option{
-padding:12px;
-margin:8px 0;
-border:2px solid #dbe4ee;
-border-radius:10px;
-cursor:pointer;
-}
-
-/* Removed initial visual styling for `.correct` so answers aren't shown before submit */
-
-.answer{
-margin-top:10px;
-font-weight:bold;
-color:#16a34a;
-}
-
-</style>
 </head>
 <body>
 <div class="submit-box">
 <button id="submitBtn">📌 Nộp bài</button>
-<button id="reviewWrongBtn" style="display:none;">❌ Xem câu sai</button>
+<button id="resetBtn" class="secondary">🔄 Làm lại</button>
+<button id="reviewWrongBtn" class="secondary" style="display:none;">❌ Xem câu sai</button>
 <h2 id="score"></h2>
 </div>
 
 <style>
-.submit-box{
-position:fixed;
-bottom:0;
-left:50%;
-transform:translateX(-50%);
-width:min(100%,560px);
-max-width:560px;
-padding:14px 16px 16px;
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-justify-content:center;
-align-items:center;
-background:rgba(255,255,255,0.98);
-backdrop-filter:blur(12px);
-border-top:1px solid rgba(15,23,42,0.08);
-box-shadow:0 -12px 24px rgba(15,23,42,0.12);
+:root {
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --surface-alt: #f8fafc;
+  --card: #ffffff;
+  --text: #111827;
+  --muted: #4b5563;
+  --border: #e2e8f0;
+  --primary: #2563eb;
+  --primary-strong: #1d4ed8;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --shadow: 0 18px 45px rgba(15,23,42,0.08);
+  --shadow-soft: 0 10px 24px rgba(15,23,42,0.08);
+  --button: #2563eb;
+  --button-text: #ffffff;
 }
 
-.submit-box button{
-flex:1 1 180px;
-min-width:140px;
-padding:14px 18px;
-border:none;
-border-radius:14px;
-font-size:16px;
-font-weight:700;
-cursor:pointer;
-background:#2563eb;
-color:white;
-box-shadow:0 10px 20px rgba(37,99,235,0.16);
-transition:transform .2s ease, background .2s ease;
+html {
+  scroll-behavior: smooth;
 }
 
-.submit-box button:hover{
-transform:translateY(-1px);
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  margin: 0;
+  min-width: 0;
+  background: var(--bg);
+  color: var(--text);
 }
 
-.submit-box h2{
-flex:1 1 100%;
-margin:0;
-text-align:center;
-font-size:1.05rem;
-color:#111827;
+body.dark {
+  color-scheme: dark;
+  --bg: #090b11;
+  --surface: #0e1726;
+  --surface-alt: #13203b;
+  --card: #111b2c;
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --border: #1f2a40;
+  --button: #3b82f6;
+  --button-text: #ffffff;
+  --shadow: 0 18px 45px rgba(0,0,0,0.45);
+  --shadow-soft: 0 10px 24px rgba(0,0,0,0.22);
 }
 
-body{
-font-family:Inter, Arial, sans-serif;
-background:#f3f4f6;
-margin:0;
-color:#111827;
-line-height:1.65;
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-.container{
-display:flex;
-gap:18px;
-justify-content:center;
-align-items:flex-start;
-padding:0 16px 180px;
+button, .option {
+  font: inherit;
 }
 
-.sidebar{
-width:260px;
-background:#ffffff;
-height:100vh;
-overflow:auto;
-padding:16px;
-border-right:1px solid #e5e7eb;
-position:sticky;
-top:88px;
-box-shadow:0 12px 30px rgba(15,23,42,0.05);
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1002;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 12px;
+  backdrop-filter: saturate(180%) blur(16px);
 }
 
-.sidebar button{
-width:48px;
-height:44px;
-margin:4px;
-border:none;
-border-radius:14px;
-cursor:pointer;
-font-weight:700;
-background:#e2e8f0;
-color:#0f172a;
-transition:transform .2s ease, background .2s ease;
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
 }
 
-.sidebar button:hover{
-background:#cbd5e1;
-transform:translateY(-1px);
+.header-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
 }
 
-.main{
-flex:1;
-padding:24px 0;
-max-width:980px;
+.header-subtitle {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
-.question{
-background:#ffffff;
-padding:24px;
-border-radius:22px;
-margin-bottom:20px;
-box-shadow:0 16px 40px rgba(15,23,42,0.06);
-border:1px solid #e5e7eb;
+.top-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
-.option{
-padding:16px 18px;
-margin:10px 0;
-border:2px solid #dbe4ee;
-border-radius:16px;
-cursor:pointer;
-background:#f8fafc;
-color:#111827;
-transition:.2s;
-font-size:1rem;
-line-height:1.6;
-min-height:56px;
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 16px;
+  background: var(--button);
+  color: var(--button-text);
+  cursor: pointer;
+  transition: transform .2s ease, background .2s ease;
+  box-shadow: var(--shadow-soft);
 }
 
-.option.selected{
-background:#2563eb;
-color:white;
-border-color:#2563eb;
-box-shadow:0 10px 20px rgba(37,99,235,0.16);
+.action-button.secondary {
+  background: var(--surface-alt);
+  color: var(--text);
 }
 
-.option.correct-answer{
-background:#16a34a !important;
-color:white !important;
-border-color:#16a34a !important;
+.action-button:hover {
+  transform: translateY(-1px);
 }
 
-.option.wrong-answer{
-background:#dc2626 !important;
-color:white !important;
-border-color:#dc2626 !important;
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 16px;
 }
 
-.question.wrong{
-border-color:#dc2626;
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: var(--surface);
+  height: calc(100vh - 88px);
+  overflow: auto;
+  padding: 14px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  position: sticky;
+  top: 88px;
+  box-shadow: var(--shadow-soft);
 }
 
-.answer{
-display:none;
-margin-top:16px;
-padding:14px 16px;
-background:#ecfdf5;
-border:1px solid #bbf7d0;
-border-radius:14px;
+.sidebar button {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0 12px;
+  margin: 6px 6px 6px 0;
+  border: none;
+  border-radius: 16px;
+  background: var(--surface-alt);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform .2s ease, background .2s ease, color .2s ease;
+}
+
+.sidebar button:hover,
+.sidebar button.active {
+  background: var(--primary);
+  color: white;
+}
+
+.main {
+  flex: 1;
+  padding-bottom: 220px;
+}
+
+.question {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 22px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-soft);
+}
+
+.question h3 {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+}
+
+.question p {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.option {
+  display: block;
+  width: 100%;
+  padding: 16px 18px;
+  margin: 10px 0;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease, color .2s ease;
+  box-shadow: 0 8px 20px rgba(15,23,42,0.05);
+}
+
+.option:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary);
+}
+
+.option.selected {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: 0 16px 28px rgba(37,99,235,0.18);
+}
+
+.option.correct-answer {
+  background: var(--success) !important;
+  color: white !important;
+  border-color: var(--success) !important;
+}
+
+.option.wrong-answer {
+  background: var(--danger) !important;
+  color: white !important;
+  border-color: var(--danger) !important;
+}
+
+.question.wrong {
+  border-color: var(--danger);
+}
+
+.answer {
+  display: none;
+  margin-top: 18px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.2);
+}
+
+.submit-box {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 14px 16px 18px;
+  box-shadow: 0 -16px 40px rgba(15,23,42,0.08);
+}
+
+.submit-box button {
+  flex: 1 1 140px;
+  min-width: 130px;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 16px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: white;
+  background: var(--primary);
+  transition: transform .2s ease, background .2s ease;
+}
+
+.submit-box button.secondary {
+  background: var(--surface-alt);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+}
+
+.submit-box button.danger {
+  background: var(--danger);
+}
+
+.submit-box h2 {
+  flex: 2 1 100%;
+  margin: 0;
+  text-align: center;
+  font-size: 1rem;
+  color: var(--text);
 }
 
 @media (max-width: 1100px) {
-  .container{
-    display:block;
-    padding-bottom:220px;
+  .container {
+    flex-direction: column;
+    padding-bottom: 220px;
   }
 
-  .sidebar{
-    position:relative;
-    width:100%;
-    height:auto;
-    max-height:240px;
-    overflow:auto;
-    border-right:none;
-    border-bottom:1px solid #e5e7eb;
-    box-shadow:none;
-    margin-bottom:16px;
+  .sidebar {
+    position: fixed;
+    inset: 84px 0 auto 0;
+    width: 100%;
+    max-height: calc(100vh - 84px);
+    transform: translateY(-115%);
+    opacity: 0;
+    transition: transform .28s ease, opacity .2s ease;
+    border-radius: 0 0 24px 24px;
+    box-shadow: 0 20px 60px rgba(15,23,42,0.18);
+    overflow-y: auto;
   }
 
-  .sidebar button{
-    flex:0 0 44px;
-    width:44px;
-    height:44px;
-    margin:4px;
-    font-size:0.85rem;
-    border-radius:12px;
+  .sidebar.open {
+    transform: translateY(0);
+    opacity: 1;
   }
 
-  .main{
-    padding:20px 16px 240px;
+  .sidebar button {
+    width: auto;
+    min-width: 54px;
+    border-radius: 16px;
   }
 
-  .submit-box{
-    left:0;
-    transform:none;
-    width:100%;
-    max-width:none;
-    border-radius:0;
-    padding:12px 14px 14px;
+  .main {
+    padding-bottom: 260px;
   }
 }
 
 @media (max-width: 760px) {
-  .sidebar button{
-    min-width:40px;
-    width:40px;
-    height:40px;
-    margin:3px;
+  header {
+    padding: 12px 14px 10px;
   }
 
-  .question{
-    border-radius:18px;
-    padding:18px;
+  .header-top {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .option{
-    padding:14px 16px;
-    font-size:1rem;
+  .top-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .header-title {
+    font-size: 0.98rem;
+  }
+
+  .header-subtitle {
+    font-size: 0.82rem;
+  }
+
+  .sidebar {
+    top: 72px;
+    height: calc(100vh - 72px);
+  }
+
+  .submit-box {
+    padding: 12px 14px 16px;
+  }
+
+  .submit-box button {
+    min-width: 120px;
+    font-size: 0.95rem;
+  }
+
+  .question {
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  .option {
+    padding: 16px;
+    font-size: 1rem;
   }
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', ()=>{
+    const sidebar = document.querySelector('.sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const themeToggle = document.getElementById('themeToggle');
+    const resetBtn = document.getElementById('resetBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const reviewBtn = document.getElementById('reviewWrongBtn');
+    const scoreEl = document.getElementById('score');
+
+    function closeSidebar(){
+        if(sidebar && sidebar.classList.contains('open')){
+            sidebar.classList.remove('open');
+        }
+    }
+
     window.goQ = function(n){
         const el = document.getElementById('q'+n);
         if(!el) return;
         el.scrollIntoView({behavior:'smooth', block:'center'});
+        setActiveQuestion(n - 1);
+        closeSidebar();
     };
 
     const questions = Array.from(document.querySelectorAll('.question'));
+    const navButtons = sidebar ? Array.from(sidebar.querySelectorAll('button')) : [];
+    const setActiveQuestion = (index)=>{
+        navButtons.forEach((btn, i)=> btn.classList.toggle('active', i === index));
+    };
+    const resetQuiz = ()=>{
+        questions.forEach((q)=>{
+            delete q.dataset.selected;
+            delete q.dataset.locked;
+            q.classList.remove('wrong');
+            const options = Array.from(q.querySelectorAll('.option'));
+            options.forEach((o)=>{
+                o.classList.remove('selected','correct-answer','wrong-answer');
+            });
+            const answer = q.querySelector('.answer');
+            if(answer) answer.style.display = 'none';
+        });
+        if(scoreEl) scoreEl.textContent = '';
+        if(reviewBtn) reviewBtn.style.display = 'none';
+        if(submitBtn) submitBtn.disabled = false;
+    };
 
     questions.forEach((q)=>{
         const options = Array.from(q.querySelectorAll('.option'));
-
         options.forEach((opt, i)=>{
             opt.addEventListener('click', ()=>{
                 if(q.dataset.locked === 'true') return;
@@ -324,9 +440,38 @@ document.addEventListener('DOMContentLoaded', ()=>{
         });
     });
 
-    const submitBtn = document.getElementById('submitBtn');
-    const reviewBtn = document.getElementById('reviewWrongBtn');
-    const scoreEl = document.getElementById('score');
+    if(resetBtn){
+        resetBtn.addEventListener('click', resetQuiz);
+    }
+
+    if(menuToggle && sidebar){
+        menuToggle.addEventListener('click', ()=>{
+            sidebar.classList.toggle('open');
+        });
+    }
+
+    if(themeToggle){
+        const savedTheme = localStorage.getItem('quizTheme');
+        if(savedTheme === 'dark'){
+            document.body.classList.add('dark');
+            themeToggle.textContent = '☀️ Sáng';
+        } else {
+            themeToggle.textContent = '🌙 Tối';
+        }
+        themeToggle.addEventListener('click', ()=>{
+            const isDark = document.body.classList.toggle('dark');
+            themeToggle.textContent = isDark ? '☀️ Sáng' : '🌙 Tối';
+            localStorage.setItem('quizTheme', isDark ? 'dark' : 'light');
+        });
+    }
+
+    window.addEventListener('click', (event)=>{
+        if(sidebar && sidebar.classList.contains('open')){
+            if(!sidebar.contains(event.target) && menuToggle && !menuToggle.contains(event.target)){
+                sidebar.classList.remove('open');
+            }
+        }
+    });
 
     if(submitBtn){
         submitBtn.addEventListener('click', ()=>{
@@ -357,21 +502,35 @@ document.addEventListener('DOMContentLoaded', ()=>{
             if(scoreEl) scoreEl.textContent = `✅ Điểm: ${correct}/${questions.length}`;
             submitBtn.disabled = true;
 
-            if(wrongList.length > 0 && reviewBtn){
-                reviewBtn.style.display = 'block';
-                reviewBtn.onclick = ()=>{
-                    const firstWrong = document.querySelector('.question.wrong');
-                    if(firstWrong) firstWrong.scrollIntoView({behavior:'smooth', block:'center'});
-                };
+            if(reviewBtn){
+                if(wrongList.length > 0){
+                    reviewBtn.style.display = 'inline-flex';
+                    reviewBtn.onclick = ()=>{
+                        const firstWrong = document.querySelector('.question.wrong');
+                        if(firstWrong) firstWrong.scrollIntoView({behavior:'smooth', block:'center'});
+                    };
+                } else {
+                    reviewBtn.style.display = 'none';
+                }
             }
         });
     }
+
+    resetQuiz();
 });
 </script>
 
 <header>
-<h1>📘 Web ôn tập Khoa học vật liệu cơ khí</h1>
-<p>Đáp án lấy theo chữ màu xanh trong PDF</p>
+  <div class="header-top">
+    <div>
+      <h1 class="header-title">📘 Ôn tập Khoa học vật liệu cơ khí</h1>
+      <p class="header-subtitle">Chạm chọn đáp án trên mobile, bấm Nộp để xem đúng/sai. Sidebar chuyển thành menu câu hỏi trên điện thoại.</p>
+    </div>
+    <div class="top-actions">
+      <button id="menuToggle" class="action-button secondary">📋 Câu hỏi</button>
+      <button id="themeToggle" class="action-button secondary">🌙 Tối</button>
+    </div>
+  </div>
 </header>
 
 <div class="container">
