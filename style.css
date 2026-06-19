@@ -35,29 +35,6 @@ body {
     border: 1px solid #ddd;
 }
 
-/* ===== Đáp án ===== */
-.option {
-    padding: 10px 12px;
-    margin: 8px 0;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background: #fafafa;
-    word-wrap: break-word;
-}
-
-.option.correct {
-    color: #00a651;
-    font-weight: bold;
-}
-
-.answer {
-    margin-top: 10px;
-    padding: 10px;
-    background: #e8f5e9;
-    border-left: 4px solid #00a651;
-    border-radius: 4px;
-    font-weight: bold;
-}
 
 /* ===== Điện thoại ===== */
 @media (max-width: 768px) {
